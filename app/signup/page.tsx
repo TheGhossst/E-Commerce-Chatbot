@@ -1,13 +1,16 @@
-
 'use client'
 
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { createUserWithEmailAndPassword, AuthError } from 'firebase/auth'
+import { setDoc, doc, serverTimestamp } from 'firebase/firestore'
+import { auth, db } from '@/lib/firebase'
 
 export default function Signup() {
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
@@ -22,18 +25,30 @@ export default function Signup() {
       return
     }
     try {
-      const response = await fetch('/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+      // Register user with Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+      const user = userCredential.user
+
+      // Store additional data in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        name: name,
+        email: email,
+        createdAt: serverTimestamp(),
       })
-      if (response.ok) {
-        router.push('/login')
-      } else {
-        setError('Registration failed. Please try again.')
-      }
+
+      router.push('/login')
     } catch (err) {
-      setError('An error occurred. Please try again.')
+      const firebaseError = err as AuthError
+      switch (firebaseError.code) {
+        case 'auth/email-already-in-use':
+          setError('An account with this email already exists')
+          break
+        case 'auth/weak-password':
+          setError('Password should be at least 6 characters')
+          break
+        default:
+          setError('Registration failed. Please try again.')
+      }
     }
   }
 
@@ -48,16 +63,29 @@ export default function Signup() {
           <input type="hidden" name="remember" value="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="username" className="sr-only">Username</label>
+              <label htmlFor="name" className="sr-only">Name</label>
               <input
-                id="username"
-                name="username"
+                id="name"
+                name="name"
                 type="text"
                 required
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-3 py-2 text-black border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="email" className="sr-only">Email</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                className="w-full px-3 py-2 text-black border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="relative">
@@ -67,7 +95,7 @@ export default function Signup() {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 required
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-black border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -91,7 +119,7 @@ export default function Signup() {
                 name="confirm-password"
                 type={showConfirmPassword ? "text" : "password"}
                 required
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-black border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}

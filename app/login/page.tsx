@@ -4,9 +4,11 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { signInWithEmailAndPassword, AuthError } from 'firebase/auth'
+import { auth } from '@/lib/firebase'
 
 export default function Login() {
-  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -15,18 +17,21 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      })
-      if (response.ok) {
-        router.push('/')
-      } else {
-        setError('Invalid credentials')
-      }
+      await signInWithEmailAndPassword(auth, email, password)
+      router.push('/')
     } catch (err) {
-      setError('An error occurred. Please try again.')
+      const firebaseError = err as AuthError
+      switch (firebaseError.code) {
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+          setError('Invalid email or password')
+          break
+        case 'auth/too-many-requests':
+          setError('Too many failed login attempts. Please try again later.')
+          break
+        default:
+          setError('An error occurred. Please try again.')
+      }
     }
   }
 
@@ -41,16 +46,16 @@ export default function Login() {
           <input type="hidden" name="remember" value="true" />
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="username" className="sr-only">Username</label>
+              <label htmlFor="email" className="sr-only">Email</label>
               <input
-                id="username"
-                name="username"
-                type="text"
+                id="email"
+                name="email"
+                type="email"
                 required
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-3 py-2 border text-black border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="relative">
@@ -60,7 +65,7 @@ export default function Login() {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 required
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-black border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
