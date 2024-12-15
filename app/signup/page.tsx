@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { createUserWithEmailAndPassword, AuthError } from 'firebase/auth'
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase'
+import { Bot } from 'lucide-react'
 
 export default function Signup() {
   const [email, setEmail] = useState('')
@@ -14,12 +15,15 @@ export default function Signup() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('') // Added for success message
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
+    setSuccess('') // Clear previous messages
     if (password !== confirmPassword) {
       setError("Passwords don't match")
       return
@@ -36,7 +40,10 @@ export default function Signup() {
         createdAt: serverTimestamp(),
       })
 
-      router.push('/login')
+      setSuccess('Authenticated, redirecting to login page...') // Show success message
+      setTimeout(() => {
+        router.push('/login') // Redirect after delay
+      }, 2000)
     } catch (err) {
       const firebaseError = err as AuthError
       switch (firebaseError.code) {
@@ -53,8 +60,12 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-400 to-purple-500 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-400 to-blue-500 py-12 px-4 sm:px-6 lg:px-8">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-[400px]">
+        <div className="flex items-center justify-center mb-6">
+          <Bot className="h-8 w-8 text-green-500 mr-2" />
+          <h1 className="text-2xl font-bold text-gray-900">ShopBot</h1>
+        </div>
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Create your account</h2>
           <p className="text-gray-600 text-sm mt-2">Join our community today</p>
@@ -69,7 +80,7 @@ export default function Signup() {
                 name="name"
                 type="text"
                 required
-                className="w-full px-3 py-2 text-black border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-black border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -82,7 +93,7 @@ export default function Signup() {
                 name="email"
                 type="email"
                 required
-                className="w-full px-3 py-2 text-black border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-black border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -95,7 +106,7 @@ export default function Signup() {
                 name="password"
                 type={showPassword ? "text" : "password"}
                 required
-                className="w-full px-3 py-2 text-black border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-black border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -119,7 +130,7 @@ export default function Signup() {
                 name="confirm-password"
                 type={showConfirmPassword ? "text" : "password"}
                 required
-                className="w-full px-3 py-2 text-black border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 text-black border border-gray-200 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -139,11 +150,12 @@ export default function Signup() {
           </div>
 
           {error && <p className="mt-2 text-center text-sm text-red-600">{error}</p>}
+          {success && <p className="mt-2 text-center text-sm text-green-600">{success}</p>} {/* Success message */}
 
           <div>
             <button
               type="submit"
-              className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition-colors"
+              className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors"
             >
               Sign up
             </button>
@@ -152,7 +164,7 @@ export default function Signup() {
         <div className="text-center mt-4">
           <p className="text-gray-600 text-sm">
             Already have an account?{' '}
-            <Link href="/login" className="text-purple-600 hover:text-purple-700 font-medium">
+            <Link href="/login" className="text-green-600 hover:text-green-700 font-medium">
               Sign in
             </Link>
           </p>
