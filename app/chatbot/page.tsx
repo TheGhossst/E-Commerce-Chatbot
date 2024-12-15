@@ -1,24 +1,51 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Bot, Send } from 'lucide-react'
-import { signOut } from 'firebase/auth'
+import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { useRouter } from 'next/navigation'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
+import Link from 'next/link'
 
 export default function ChatbotPage() {
     const router = useRouter()
     const [messages, setMessages] = useState<{ text: string; isUser: boolean }[]>([])
     const [input, setInput] = useState('')
+    const [userName, setUserName] = useState<string>('')
+    const [dropdownOpen, setDropdownOpen] = useState(false)
+
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            if (currentUser) {
+                try {
+                    const userDocRef = doc(db, 'users', currentUser.uid)
+                    const userDocSnap = await getDoc(userDocRef)
+
+                    if (userDocSnap.exists()) {
+                        const userData = userDocSnap.data()
+                        setUserName(userData.name || 'User')
+                    } else {
+                        console.log('No such document!')
+                    }
+                } catch (error) {
+                    console.error('Error fetching user data:', error)
+                }
+            } else {
+                router.push('/')
+            }
+        })
+
+        return () => unsubscribe()
+    }, [router])
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         if (input.trim()) {
             setMessages([...messages, { text: input, isUser: true }])
-            // Here you would typically send the message to your AI backend
-            // and get a response. For this example, we'll just echo the message.
             setTimeout(() => {
-                setMessages(prev => [...prev, { text: `You said: ${input}`, isUser: false }])
+                setMessages((prev) => [...prev, { text: `You said: ${input}`, isUser: false }])
             }, 1000)
             setInput('')
         }
@@ -37,16 +64,32 @@ export default function ChatbotPage() {
         <div className="flex flex-col h-screen bg-gray-100">
             <header className="bg-white shadow">
                 <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-                    <div className="flex items-center">
+                    <Link href="/" className="flex items-center cursor-pointer">
                         <Bot className="h-8 w-8 text-green-500 mr-2" />
                         <h1 className="text-3xl font-bold text-gray-900">ShopBot</h1>
+                    </Link>
+
+                    <div className="relative">
+                        <button
+                            onClick={() => setDropdownOpen((prev) => !prev)}
+                            className="flex items-center justify-center w-10 h-10 rounded-full bg-green-500 text-white focus:outline-none"
+                        >
+                            {userName.charAt(0).toUpperCase()}
+                        </button>
+                        {dropdownOpen && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg">
+                                <div className="px-4 py-2 text-gray-700 font-semibold">
+                                    {userName}
+                                </div>
+                                <button
+                                    onClick={handleLogout}
+                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        )}
                     </div>
-                    <button
-                        onClick={handleLogout}
-                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    >
-                        Logout
-                    </button>
                 </div>
             </header>
             <main className="flex-grow overflow-auto p-6">
@@ -57,7 +100,9 @@ export default function ChatbotPage() {
                             className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
                         >
                             <div
-                                className={`max-w-sm p-4 rounded-lg ${message.isUser ? 'bg-green-500 text-white' : 'bg-white text-black'
+                                className={`max-w-sm p-4 rounded-lg ${message.isUser
+                                    ? 'bg-green-500 text-white'
+                                    : 'bg-white text-black'
                                     }`}
                             >
                                 {message.text}
@@ -79,7 +124,7 @@ export default function ChatbotPage() {
                         type="submit"
                         className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                     >
-                        <Send className="h-4 w-4 mr-2 inline-block" />
+                        <Send className="h-4 w-4 mr-2 inline-block text-sm" />
                         Send
                     </button>
                 </form>
