@@ -57,7 +57,7 @@ export default function ChatbotPage() {
                             className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
                         >
                             <div
-                                className={`max-w-sm p-4 rounded-lg ${message.isUser ? 'bg-green-500 text-white' : 'bg-white'
+                                className={`max-w-sm p-4 rounded-lg ${message.isUser ? 'bg-green-500 text-white' : 'bg-white text-black'
                                     }`}
                             >
                                 {message.text}
@@ -73,7 +73,7 @@ export default function ChatbotPage() {
                         placeholder="Type your message..."
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        className="flex-grow px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="flex-grow px-4 py-2 border text-black border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
                     <button
                         type="submit"
