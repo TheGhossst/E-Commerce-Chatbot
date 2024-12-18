@@ -39,10 +39,12 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-400 to-blue-500 py-12 px-4 sm:px-6 lg:px-8">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-[400px]">
-        <div className="flex items-center justify-center mb-6">
-          <Bot className="h-8 w-8 text-green-500 mr-2" />
-          <h1 className="text-2xl font-bold text-gray-900">ShopBot</h1>
-        </div>
+        <Link href="/">
+          <div className="flex items-center justify-center mb-6">
+            <Bot className="h-8 w-8 text-green-500 mr-2" />
+            <h1 className="text-2xl font-bold text-gray-900">ShopBot</h1>
+          </div>
+        </Link>
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
           <p className="text-gray-600 text-sm mt-2">Sign in to your account</p>
