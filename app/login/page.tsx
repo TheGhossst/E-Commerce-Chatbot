@@ -54,7 +54,7 @@ export default function Login() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-400 to-blue-500 py-12 px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-2xl shadow-xl p-8 w-[400px] text-center">
-          <h1 className="text-2xl font-bold text-gray-900">You're already logged in!</h1>
+          <h1 className="text-2xl font-bold text-gray-900">You&apos;re logged in!</h1>
           <p className="text-gray-600 mt-2">
             Redirecting to the chatbot...
           </p>
@@ -131,7 +131,7 @@ export default function Login() {
         </form>
         <div className="text-center mt-4">
           <p className="text-gray-600 text-sm">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/signup" className="text-green-600 hover:text-green-700 font-medium">
               Sign up
             </Link>

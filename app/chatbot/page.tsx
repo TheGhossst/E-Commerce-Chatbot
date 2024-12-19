@@ -12,7 +12,7 @@ import {
     updateDoc,
     writeBatch,
     query,
-    orderBy
+    orderBy,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { v4 as uuidv4 } from 'uuid';
@@ -21,6 +21,7 @@ import { ChatHeader } from './components/Header';
 import { ChatInput } from './components/ChatInput';
 import { Toast } from '../components/Toast';
 import { Bot, User } from 'lucide-react';
+import { Chat } from '../types/type';
 
 interface Message {
     text: string;
@@ -29,19 +30,14 @@ interface Message {
 }
 
 interface Product {
-    id: string
-    name: string
-    description: string
-    price: number
-    category: string
-    stock: number
-}
-
-interface Chat {
     id: string;
     name: string;
-    messages: Message[];
+    description: string;
+    price: number;
+    category: string;
+    stock: number;
 }
+
 
 export default function ChatbotPage() {
     const router = useRouter();
@@ -54,56 +50,33 @@ export default function ChatbotPage() {
     const [showToast, setShowToast] = useState(false);
     const [showLogoutToast, setShowLogoutToast] = useState(false);
 
-    /*useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-            if (currentUser) {
-                try {
-                    const userDocRef = doc(db, 'users', currentUser.uid);
-                    const chatsSnapshot = await getDocs(collection(db, `users/${currentUser.uid}/chats`));
-                    const fetchedChats: Chat[] = [];
+    const handleNewChat = useCallback(async () => {
+        const newChat: Chat = {
+            id: uuidv4(),
+            name: 'New Chat',
+            messages: [],
+        };
+        setChats((prev) => [...prev, newChat]);
+        setActiveChat(newChat.id);
 
-                    for (const chatDoc of chatsSnapshot.docs) {
-                        const chatData = chatDoc.data();
-                        const messagesSnapshot = await getDocs(
-                            collection(db, `users/${currentUser.uid}/chats/${chatDoc.id}/messages`)
-                        );
-                        const messages = messagesSnapshot.docs.map((doc) => doc.data() as Message);
+        try {
+            const currentUser = auth.currentUser;
+            if (!currentUser) return;
 
-                        fetchedChats.push({
-                            id: chatDoc.id,
-                            name: chatData.name,
-                            messages,
-                        });
-                    }
-
-                    setUserName(currentUser.displayName || 'User');
-                    setChats(fetchedChats);
-                    if (fetchedChats.length > 0) {
-                        setActiveChat(fetchedChats[0].id);
-                    } else {
-                        handleNewChat();
-                    }
-                } catch (error) {
-                    console.error('Error fetching user data:', error);
-                    setChats([]);
-                }
-            } else {
-                setShowToast(true);
-                setTimeout(() => {
-                    router.push('/');
-                }, 1000);
-            }
-        });
-
-        return () => unsubscribe();
-    }, [router]);*/
+            const chatRef = doc(db, `users/${currentUser.uid}/chats/${newChat.id}`);
+            await setDoc(chatRef, { name: newChat.name });
+        } catch (error) {
+            console.error('Error creating new chat:', error);
+        }
+    }, []);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             if (currentUser) {
                 try {
-                    const userDocRef = doc(db, 'users', currentUser.uid);
-                    const chatsSnapshot = await getDocs(collection(db, `users/${currentUser.uid}/chats`));
+                    const chatsSnapshot = await getDocs(
+                        collection(db, `users/${currentUser.uid}/chats`)
+                    );
                     const fetchedChats: Chat[] = [];
 
                     for (const chatDoc of chatsSnapshot.docs) {
@@ -144,7 +117,7 @@ export default function ChatbotPage() {
         });
 
         return () => unsubscribe();
-    }, [router]);
+    }, [router, handleNewChat]);
 
 
     useEffect(() => {
@@ -153,26 +126,25 @@ export default function ChatbotPage() {
 
 
 
-    const handleNewChat = useCallback(async () => {
-        const newChat: Chat = {
-            id: uuidv4(),
-            name: 'New Chat',
-            messages: [],
-        };
-        setChats((prev) => [...prev, newChat]);
-        setActiveChat(newChat.id);
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [chats, activeChat]);
 
+    const searchProducts = useCallback(async (query: string): Promise<Product[]> => {
         try {
-            const currentUser = auth.currentUser;
-            if (!currentUser) return;
-
-            const chatRef = doc(db, `users/${currentUser.uid}/chats/${newChat.id}`);
-            await setDoc(chatRef, { name: newChat.name });
+            const response = await fetch(
+                `http://localhost:5000/api/products/search?query=${encodeURIComponent(query)}`
+            );
+            if (!response.ok) {
+                throw new Error('Failed to fetch products');
+            }
+            const data = await response.json();
+            return data;
         } catch (error) {
-            console.error('Error creating new chat:', error);
+            console.error('Error searching products:', error);
+            return [];
         }
     }, []);
-
 
     const handleRenameChat = useCallback(
         async (chatId: string, newName: string) => {
@@ -207,70 +179,6 @@ export default function ChatbotPage() {
         }
     };
 
-    const searchProducts = async (query: string): Promise<Product[]> => {
-        try {
-            const response = await fetch(`http://localhost:5000/api/products/search?query=${encodeURIComponent(query)}`)
-            if (!response.ok) {
-                throw new Error('Failed to fetch products')
-            }
-            const data = await response.json()
-            return data
-        } catch (error) {
-            console.error('Error searching products:', error)
-            return []
-        }
-    }
-
-    /*const handleSubmit = useCallback(
-        async (e: React.FormEvent) => {
-            e.preventDefault();
-            if (input.trim() && !isLoading && activeChat) {
-                setIsLoading(true);
-                const userMessage: Message = { text: input, isUser: true, timestamp: Date.now() };
-                setChats((prev) =>
-                    prev.map((chat) =>
-                        chat.id === activeChat ? { ...chat, messages: [...chat.messages, userMessage] } : chat
-                    )
-                );
-                await storeMessage(activeChat, userMessage);
-                setInput('');
-
-                try {
-                    const botMessage: Message = {
-                        text: "I'm processing your request. This is a placeholder response.",
-                        isUser: false,
-                        timestamp: Date.now(),
-                    };
-                    setChats((prev) =>
-                        prev.map((chat) =>
-                            chat.id === activeChat
-                                ? { ...chat, messages: [...chat.messages, botMessage] }
-                                : chat
-                        )
-                    );
-                    await storeMessage(activeChat, botMessage);
-                } catch (error) {
-                    console.error('Error processing message:', error);
-                    const errorMessage: Message = {
-                        text: "I'm sorry, I encountered an error while processing your request. Please try again later.",
-                        isUser: false,
-                        timestamp: Date.now(),
-                    };
-                    setChats((prev) =>
-                        prev.map((chat) =>
-                            chat.id === activeChat
-                                ? { ...chat, messages: [...chat.messages, errorMessage] }
-                                : chat
-                        )
-                    );
-                    await storeMessage(activeChat, errorMessage);
-                } finally {
-                    setIsLoading(false);
-                }
-            }
-        },
-        [input, isLoading, activeChat]
-    );*/
 
     const handleSubmit = useCallback(
         async (e: React.FormEvent) => {
@@ -294,8 +202,11 @@ export default function ChatbotPage() {
 
                     let botResponse = '';
                     if (searchResults.length > 0) {
-                        botResponse = `I found ${searchResults.length} product${searchResults.length > 1 ? 's' : ''} matching your search. Here ${searchResults.length > 1 ? 'are some options' : 'is an option'
-                            }:\n\n` +
+                        botResponse = `I found ${searchResults.length} product${
+                            searchResults.length > 1 ? 's' : ''
+                        } matching your search. Here ${
+                            searchResults.length > 1 ? 'are some options' : 'is an option'
+                        }:\n\n` +
                             searchResults
                                 .slice(0, 3)
                                 .map(
@@ -307,10 +218,15 @@ export default function ChatbotPage() {
                                 )
                                 .join('\n\n');
                     } else {
-                        botResponse = "I couldn't find any products matching your search. Can you try different keywords?";
+                        botResponse =
+                            "I couldn't find any products matching your search. Can you try different keywords?";
                     }
 
-                    const botMessage: Message = { text: botResponse, isUser: false, timestamp: Date.now() };
+                    const botMessage: Message = {
+                        text: botResponse,
+                        isUser: false,
+                        timestamp: Date.now(),
+                    };
                     setChats((prev) =>
                         prev.map((chat) =>
                             chat.id === activeChat
@@ -390,7 +306,6 @@ export default function ChatbotPage() {
                 onNewChat={handleNewChat}
                 onDeleteChat={handleDeleteChat}
                 onRenameChat={handleRenameChat}
-                userName={userName}
             />
             <div className="flex flex-col flex-grow">
                 <ChatHeader userName={userName} onLogout={handleLogout} />

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Bot, Share2, User, LogOut, Check } from 'lucide-react'
+import Link from 'next/link'
 
 interface ChatHeaderProps {
     userName: string
@@ -33,10 +34,12 @@ export function ChatHeader({ userName, onLogout }: ChatHeaderProps) {
     return (
         <header className="border-b border-gray-200 bg-white">
             <div className="flex items-center justify-between px-4 py-3">
-                <div className="flex items-center gap-2">
-                    <Bot className="h-6 w-6 text-green-500" />
-                    <h1 className="text-lg font-semibold text-gray-900">ShopBot</h1>
-                </div>
+                <Link href = "/">
+                    <div className="flex items-center gap-2">
+                        <Bot className="h-6 w-6 text-green-500" />
+                        <h1 className="text-lg font-semibold text-gray-900">ShopBot</h1>
+                    </div>
+                </Link>
                 <div className="flex items-center gap-4">
                     <button
                         className="text-gray-500 hover:text-gray-700 transition-colors relative"

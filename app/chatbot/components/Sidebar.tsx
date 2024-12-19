@@ -1,22 +1,16 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Bot, ChevronDown, Settings, MoreVertical, Edit2, Trash2 } from 'lucide-react'
-
-interface Chat {
-    id: string
-    name: string
-    messages: any[]
-}
+import { useState } from 'react';
+import { Bot, ChevronDown, Settings, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { Chat } from '@/app/types/type';
 
 interface ChatSidebarProps {
-    chats: Chat[]
-    activeChat: string
-    onSelectChat: (chatId: string) => void
-    onNewChat: () => void
-    onDeleteChat: (chatId: string) => void
-    onRenameChat: (chatId: string, newName: string) => void
-    userName: string
+    chats: Chat[];
+    activeChat: string;
+    onSelectChat: (chatId: string) => void;
+    onNewChat: () => void;
+    onDeleteChat: (chatId: string) => void;
+    onRenameChat: (chatId: string, newName: string) => void;
 }
 
 export function ChatSidebar({
@@ -26,42 +20,41 @@ export function ChatSidebar({
     onNewChat,
     onDeleteChat,
     onRenameChat,
-    userName
 }: ChatSidebarProps) {
-    const [editingChatId, setEditingChatId] = useState<string | null>(null)
-    const [newChatName, setNewChatName] = useState('')
-    const [menuOpenChatId, setMenuOpenChatId] = useState<string | null>(null)
+    const [editingChatId, setEditingChatId] = useState<string | null>(null);
+    const [newChatName, setNewChatName] = useState('');
+    const [menuOpenChatId, setMenuOpenChatId] = useState<string | null>(null);
 
     // Group chats by date
-    const today = new Date().toDateString()
-    const yesterday = new Date(Date.now() - 86400000).toDateString()
+    const today = new Date().toDateString();
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
 
     const groupedChats = chats.reduce((acc: Record<string, Chat[]>, chat) => {
-        const lastMessage = chat.messages[chat.messages.length - 1]
+        const lastMessage = chat.messages[chat.messages.length - 1];
         const date = lastMessage
             ? new Date(lastMessage.timestamp).toDateString()
-            : today
+            : today;
 
         if (date === today) {
-            acc.Today = acc.Today || []
-            acc.Today.push(chat)
+            acc.Today = acc.Today || [];
+            acc.Today.push(chat);
         } else if (date === yesterday) {
-            acc.Yesterday = acc.Yesterday || []
-            acc.Yesterday.push(chat)
+            acc.Yesterday = acc.Yesterday || [];
+            acc.Yesterday.push(chat);
         } else {
-            acc['Previous 7 Days'] = acc['Previous 7 Days'] || []
-            acc['Previous 7 Days'].push(chat)
+            acc['Previous 7 Days'] = acc['Previous 7 Days'] || [];
+            acc['Previous 7 Days'].push(chat);
         }
-        return acc
-    }, {})
+        return acc;
+    }, {});
 
     const handleRenameSubmit = (chatId: string) => {
         if (newChatName.trim()) {
-            onRenameChat(chatId, newChatName.trim())
-            setEditingChatId(null)
-            setNewChatName('')
+            onRenameChat(chatId, newChatName.trim());
+            setEditingChatId(null);
+            setNewChatName('');
         }
-    }
+    };
 
     return (
         <div className="w-80 h-full bg-white border-r border-gray-200 flex flex-col">
@@ -91,8 +84,8 @@ export function ChatSidebar({
                                     <form
                                         className="flex-1 flex items-center gap-2"
                                         onSubmit={(e) => {
-                                            e.preventDefault()
-                                            handleRenameSubmit(chat.id)
+                                            e.preventDefault();
+                                            handleRenameSubmit(chat.id);
                                         }}
                                     >
                                         <input
@@ -103,8 +96,8 @@ export function ChatSidebar({
                                             className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded"
                                             autoFocus
                                             onBlur={() => {
-                                                setEditingChatId(null)
-                                                setNewChatName('')
+                                                setEditingChatId(null);
+                                                setNewChatName('');
                                             }}
                                         />
                                     </form>
@@ -128,9 +121,9 @@ export function ChatSidebar({
                                                 <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
                                                     <button
                                                         onClick={() => {
-                                                            setEditingChatId(chat.id)
-                                                            setNewChatName(chat.name)
-                                                            setMenuOpenChatId(null)
+                                                            setEditingChatId(chat.id);
+                                                            setNewChatName(chat.name);
+                                                            setMenuOpenChatId(null);
                                                         }}
                                                         className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                                                     >
@@ -139,8 +132,8 @@ export function ChatSidebar({
                                                     </button>
                                                     <button
                                                         onClick={() => {
-                                                            onDeleteChat(chat.id)
-                                                            setMenuOpenChatId(null)
+                                                            onDeleteChat(chat.id);
+                                                            setMenuOpenChatId(null);
                                                         }}
                                                         className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
                                                     >
@@ -165,5 +158,5 @@ export function ChatSidebar({
                 </div>
             </div>
         </div>
-    )
+    );
 }

@@ -8,9 +8,10 @@ import { auth } from '@/lib/firebase'
 import { db } from '@/lib/firebase'
 import { doc, getDoc } from 'firebase/firestore'
 import { useRouter } from 'next/navigation'
+import { User } from 'firebase/auth';
 
 export function NavBar() {
-    const [user, setUser] = useState<any>(null)
+    const [user, setUser] = useState<User | null>(null);
     const [userName, setUserName] = useState<string>('')
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const router = useRouter()
