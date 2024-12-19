@@ -1,10 +1,10 @@
 'use client'
 
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createUserWithEmailAndPassword, AuthError } from 'firebase/auth'
+import { createUserWithEmailAndPassword, AuthError, onAuthStateChanged } from 'firebase/auth'
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase'
 import { Bot } from 'lucide-react'
@@ -15,15 +15,30 @@ export default function Signup() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('') // Added for success message
+  const [success, setSuccess] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    // Check if the user is already signed in
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsLoggedIn(true)
+        setTimeout(() => {
+          router.push('/chatbot')
+        }, 4000)
+      }
+    })
+
+    return () => unsubscribe()
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setSuccess('') // Clear previous messages
+    setSuccess('')
     if (password !== confirmPassword) {
       setError("Passwords don't match")
       return
@@ -40,9 +55,9 @@ export default function Signup() {
         createdAt: serverTimestamp(),
       })
 
-      setSuccess('Authenticated, redirecting to login page...') // Show success message
+      setSuccess('Account created! Redirecting to login page...')
       setTimeout(() => {
-        router.push('/login') // Redirect after delay
+        router.push('/login')
       }, 2000)
     } catch (err) {
       const firebaseError = err as AuthError
@@ -57,6 +72,19 @@ export default function Signup() {
           setError('Registration failed. Please try again.')
       }
     }
+  }
+
+  if (isLoggedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-400 to-blue-500 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8 w-[400px] text-center">
+          <h1 className="text-2xl font-bold text-gray-900">You're already logged in!</h1>
+          <p className="text-gray-600 mt-2">
+            Redirecting to the chatbot...
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -152,7 +180,7 @@ export default function Signup() {
           </div>
 
           {error && <p className="mt-2 text-center text-sm text-red-600">{error}</p>}
-          {success && <p className="mt-2 text-center text-sm text-green-600">{success}</p>} {/* Success message */}
+          {success && <p className="mt-2 text-center text-sm text-green-600">{success}</p>}
 
           <div>
             <button

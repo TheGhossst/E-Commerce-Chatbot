@@ -1,10 +1,10 @@
 'use client'
 
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { signInWithEmailAndPassword, AuthError } from 'firebase/auth'
+import { signInWithEmailAndPassword, onAuthStateChanged, AuthError } from 'firebase/auth'
 import { auth } from '@/lib/firebase'
 import { Bot } from 'lucide-react'
 
@@ -13,7 +13,21 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsLoggedIn(true)
+        setTimeout(() => {
+          router.push('/chatbot')
+        }, 4000)
+      }
+    })
+
+    return () => unsubscribe()
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,6 +48,19 @@ export default function Login() {
           setError('An error occurred. Please try again.')
       }
     }
+  }
+
+  if (isLoggedIn) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-400 to-blue-500 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-2xl shadow-xl p-8 w-[400px] text-center">
+          <h1 className="text-2xl font-bold text-gray-900">You're already logged in!</h1>
+          <p className="text-gray-600 mt-2">
+            Redirecting to the chatbot...
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
