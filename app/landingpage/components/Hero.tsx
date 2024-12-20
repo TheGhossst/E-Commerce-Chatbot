@@ -4,7 +4,7 @@ import { Bot, ShoppingCart, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
+import { auth } from '@/api/lib/firebase'
 
 export function Hero() {
     const [isAuthenticated, setIsAuthenticated] = useState(false)

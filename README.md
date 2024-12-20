@@ -24,23 +24,20 @@ An e-commerce chatbot built with Next.js, Python Flask, and Firebase to enhance 
 
 ```
 E-Commerce-Chatbot
-├── api/                      # Python Flask backend API
-│   ├── app.py                 # Main API application
-│   ├── populatedb.py          # Script to populate mock database
-│   ├── requirements.txt       # Python dependencies
-│   └── test.py                # Unit tests
-├── app/                      # Next.js pages
-│   ├── chatbot/               # Chatbot interface page
-│   ├── components/            # Reusable React components
-│   ├── landingpage/           # Landing page of the website
-│   ├── login/                 # User login page
-│   ├── products/              # Product listing and details page
-│   ├── signup/                # User signup page
-│   └── types/                 # Type definitions
-├── lib/                      # Utility files
-│   └── firebase.ts            # Firebase initialization
-├── .env.local                # Environment variables
-├── firebase-admin-sdk.json   # Firebase Admin SDK credentials
+├── api/            # Backend API
+│   ├── lib/          # Utility files
+│   │   └── firebase.ts # Firebase initialization
+│   ├── app.py       # Flask application entry point
+│   ├── populatedb.py # Script to populate Firestore with mock data
+│   ├── requirements.txt # Python dependencies
+│   └── test.py       # API test scripts
+├── app/            # Next.js pages
+│   ├── landingpage/  # Landing page of the website
+│   ├── signup/       # User signup page
+│   ├── login/        # User login page
+│   └── chatbot/      # Chatbot interface page
+├── .env.local      # Environment variables
+├── firebase-admin-sdk.json # Firebase Admin SDK credentials
 ```
 
 ## Installation and Setup
@@ -161,3 +158,4 @@ Feel free to fork this repository and submit pull requests for enhancements or b
 ## Contact
 
 For any questions or feedback, please open an issue on the repository.
+

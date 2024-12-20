@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth } from '@/api/lib/firebase';
 import { useRouter } from 'next/navigation';
 import {
     doc,
@@ -14,7 +14,7 @@ import {
     query,
     orderBy,
 } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db } from '@/api/lib/firebase';
 import { v4 as uuidv4 } from 'uuid';
 import { ChatSidebar } from './components/Sidebar';
 import { ChatHeader } from './components/Header';

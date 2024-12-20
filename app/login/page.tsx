@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { signInWithEmailAndPassword, onAuthStateChanged, AuthError } from 'firebase/auth'
-import { auth } from '@/lib/firebase'
+import { auth } from '@/api/lib/firebase'
 import { Bot } from 'lucide-react'
 
 export default function Login() {

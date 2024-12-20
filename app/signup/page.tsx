@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createUserWithEmailAndPassword, AuthError, onAuthStateChanged } from 'firebase/auth'
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore'
-import { auth, db } from '@/lib/firebase'
+import { auth, db } from '@/api/lib/firebase'
 import { Bot } from 'lucide-react'
 
 export default function Signup() {
