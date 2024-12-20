@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bot, ChevronDown, Settings, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { Bot, ChevronDown, MoreVertical, Edit2, Trash2 } from 'lucide-react';
 import { Chat } from '@/app/types/type';
 
 interface ChatSidebarProps {
