@@ -150,13 +150,6 @@ export function ChatSidebar({
                     </div>
                 ))}
             </div>
-
-            <div className="border-t border-gray-200 p-3">
-                <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <Settings className="h-4 w-4" />
-                    <span>Settings</span>
-                </div>
-            </div>
         </div>
     );
 }

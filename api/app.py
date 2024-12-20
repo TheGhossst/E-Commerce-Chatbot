@@ -62,5 +62,30 @@ def search_products():
         print("Error occurred:", e)
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/products/<string:product_id>', methods=['GET'])
+def get_product_by_id(product_id):
+    products_ref = db.collection('products')
+
+    try:
+        # Log the product_id for debugging
+        print(f"Received product_id: {product_id}")
+
+        # Query Firestore for the product with the given ID
+        product_doc = products_ref.document(product_id).get()
+
+        if product_doc.exists:
+            product = product_doc.to_dict()
+            product['id'] = product_doc.id
+            print(f"Found product: {product}")
+            return jsonify(product)
+        else:
+            print(f"No product found with ID: {product_id}")
+            return jsonify({"error": "Product not found"}), 404
+
+    except Exception as e:
+        # Log the error and return a 500 response
+        print("Error occurred:", e)
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -21,22 +21,7 @@ import { ChatHeader } from './components/Header';
 import { ChatInput } from './components/ChatInput';
 import { Toast } from '../components/Toast';
 import { Bot, User } from 'lucide-react';
-import { Chat } from '../types/type';
-
-interface Message {
-    text: string;
-    isUser: boolean;
-    timestamp: number;
-}
-
-interface Product {
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-    category: string;
-    stock: number;
-}
+import { Chat, Message, Product } from '../types/type';
 
 
 export default function ChatbotPage() {
@@ -84,7 +69,7 @@ export default function ChatbotPage() {
                         const messagesSnapshot = await getDocs(
                             query(
                                 collection(db, `users/${currentUser.uid}/chats/${chatDoc.id}/messages`),
-                                orderBy('timestamp', 'asc') // Ensure messages are sorted by timestamp
+                                orderBy('timestamp', 'asc')
                             )
                         );
                         const messages = messagesSnapshot.docs.map((doc) => doc.data() as Message);
@@ -202,19 +187,14 @@ export default function ChatbotPage() {
 
                     let botResponse = '';
                     if (searchResults.length > 0) {
-                        botResponse = `I found ${searchResults.length} product${
-                            searchResults.length > 1 ? 's' : ''
-                        } matching your search. Here ${
-                            searchResults.length > 1 ? 'are some options' : 'is an option'
-                        }:\n\n` +
+                        botResponse = `I found ${searchResults.length} product${searchResults.length > 1 ? 's' : ''
+                            } matching your search. Here ${searchResults.length > 1 ? 'are the options' : 'is the option'
+                            }:\n\n` +
                             searchResults
                                 .slice(0, 3)
                                 .map(
                                     (product) =>
-                                        `${product.name} - $${product.price.toFixed(2)}\n${product.description.slice(
-                                            0,
-                                            100
-                                        )}...`
+                                        `<a href="/products/${product.id}" target="_blank" class="text-blue-500 hover:underline">${product.name} - $${product.price.toFixed(2)}</a>\n${product.description.slice(0, 100)}...`
                                 )
                                 .join('\n\n');
                     } else {
@@ -329,11 +309,14 @@ export default function ChatbotPage() {
                                         )}
                                         <div
                                             className={`rounded-lg px-4 py-2 max-w-[85%] ${message.isUser
-                                                ? 'bg-green-500 text-white'
-                                                : 'bg-gray-800 text-white'
+                                                ? 'bg-black text-white'
+                                                : 'bg-gray-100 text-black'
                                                 }`}
                                         >
-                                            <p className="whitespace-pre-wrap">{message.text}</p>
+                                            <p
+                                                className="whitespace-pre-wrap"
+                                                dangerouslySetInnerHTML={{ __html: message.text }}
+                                            ></p>
                                             <p className="mt-1 text-xs opacity-50">
                                                 {new Date(message.timestamp).toLocaleTimeString()}
                                             </p>
