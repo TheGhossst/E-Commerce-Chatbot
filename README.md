@@ -1,36 +1,163 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# E-Commerce Chatbot
 
-## Getting Started
+## Overview
 
-First, run the development server:
+An e-commerce chatbot built with Next.js, Python Flask, and Firebase to enhance the shopping experience by providing an efficient interface for product search, exploration, and purchase processes. The chatbot integrates with a simulated e-commerce server that processes user queries and returns relevant product data from a mock inventory.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Features
+
+- **Responsive User Interface**: Compatible with desktop, tablet, and mobile devices.
+- **Authentication**: Secure login and session management.
+- **Chatbot Interface**: Simple and intuitive with options to reset conversations and track sessions with timestamps.
+- **Backend API**: Flask-based API for handling product search and retrieval.
+- **Mock Inventory**: At least 100 mock e-commerce products stored in Firebase Firestore.
+- **Technical Documentation**: Includes architecture details, tool choices, and mock data creation steps.
+
+## Technologies Used
+
+- **Frontend**: Next.js, React, HTML5, TailWindCSS
+- **Backend**: Python Flask
+- **Database**: Firebase Firestore
+- **Other Tools**: Firebase Admin SDK, dotenv for environment variables, Flask-CORS for cross-origin support
+
+## Project Structure
+
+```
+E-Commerce-Chatbot
+├── api/                      # Python Flask backend API
+│   ├── app.py                 # Main API application
+│   ├── populatedb.py          # Script to populate mock database
+│   ├── requirements.txt       # Python dependencies
+│   └── test.py                # Unit tests
+├── app/                      # Next.js pages
+│   ├── chatbot/               # Chatbot interface page
+│   ├── components/            # Reusable React components
+│   ├── landingpage/           # Landing page of the website
+│   ├── login/                 # User login page
+│   ├── products/              # Product listing and details page
+│   ├── signup/                # User signup page
+│   └── types/                 # Type definitions
+├── lib/                      # Utility files
+│   └── firebase.ts            # Firebase initialization
+├── .env.local                # Environment variables
+├── firebase-admin-sdk.json   # Firebase Admin SDK credentials
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Installation and Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Node.js and npm installed
+- Python 3.8+ installed
+- Firebase Admin SDK credentials
 
-## Learn More
+### Steps
 
-To learn more about Next.js, take a look at the following resources:
+1. Clone the repository:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   git clone https://github.com/TheGhossst/E-Commerce-Chatbot
+   cd E-Commerce-Chatbot
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. **Create Environment Variables**:
+   Create a `.env.local` file in the root directory with the following content:
 
-## Deploy on Vercel
+   ```env
+   NEXT_PUBLIC_FIREBASE_API_KEY=
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+   NEXT_PUBLIC_FIREBASE_APP_ID=
+   NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=
+   FIREBASE_ADMIN_SDK_PATH=
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Frontend Setup**:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+4. **Backend Setup**:
+
+   - Activate the virtual environment:
+     ```bash
+     .\.venv\Scripts\activate   # On Windows
+     source .venv/bin/activate   # On macOS/Linux
+     ```
+   - Navigate to the API folder:
+     ```bash
+     cd api
+     ```
+   - Install dependencies:
+     ```bash
+     pip install -r requirements.txt
+     ```
+   - Run the Flask server:
+     ```bash
+     python app.py
+     ```
+
+   Alternatively, on Windows, you can use the PowerShell script:
+
+   ```bash
+   .\run-dev-api.ps1
+   ```
+
+## Backend API Endpoints
+
+### Base URL
+
+```
+http://localhost:5000
+```
+
+### Endpoints
+
+1. **Home**: `GET /`
+
+   - Description: Displays a welcome message.
+
+2. **Search Products**: `GET /api/products/search`
+
+   - Query Parameter: `query` (string) - Search term for product names.
+   - Example:
+     ```bash
+     curl "http://localhost:5000/api/products/search?query=keyboard"
+     ```
+
+3. **Get Product by ID**: `GET /api/products/<product_id>`
+
+   - Path Parameter: `product_id` (string) - The ID of the product to retrieve.
+   - Example:
+     ```bash
+     curl "http://localhost:5000/api/products/123"
+     ```
+
+## Firebase Setup
+
+1. Add your Firebase Admin SDK JSON credentials file to the project.
+2. Ensure your Firestore database contains the `products` collection with the following fields:
+   - `name` (string)
+   - `description` (string)
+   - `price` (number)
+   - `stock` (number)
+   - `name_lower` (string) - Lowercase version of the product name for case-insensitive search.
+
+## Challenges and Solutions
+
+- **Cross-Origin Resource Sharing (CORS)**: Implemented `Flask-CORS` to allow the frontend to interact with the backend API.
+- **Product Name Search**: Currently searching with product name is only possible.
+- **Case-Insensitive Search**: Added a `name_lower` field to products for efficient search queries.
+- **Session Management**: Used Firebase Authentication for secure login and session persistence.
+
+## Contribution
+
+Feel free to fork this repository and submit pull requests for enhancements or bug fixes.
+
+## Contact
+
+For any questions or feedback, please open an issue on the repository.
